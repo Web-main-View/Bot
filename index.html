@@ -2262,58 +2262,24 @@ function showMarketErrorMessage(message) {
             document.getElementById('totalBalanceDisplay').textContent = `$${totalBalance.toFixed(2).toLocaleString()}`;
             
             // Holdings
-      function renderHoldings() {
-    const holdingsList = document.getElementById('tokenHoldingsList');
-    const emptyState = document.getElementById('holdingsEmpty');
-
-    if (!holdingsList || !appState?.balances?.holdings) return;
-
-    // Filter only meaningful holdings (> $0.01)
-    const holdingsData = appState.balances.holdings.filter(h => h.usdValue > 0.01);
-
-    // Toggle empty state visibility
-    emptyState.classList.toggle('hidden', holdingsData.length > 0);
-
-    if (holdingsData.length === 0) {
-        holdingsList.innerHTML = '';
-        return;
-    }
-
-    // Build holdings markup in one go for performance
-    const holdingsHTML = holdingsData.map(h => {
-        const symbol = h.symbol?.toUpperCase() || 'N/A';
-        const amount = Number(h.amount).toLocaleString(undefined, { 
-            minimumFractionDigits: 4, 
-            maximumFractionDigits: 4 
-        });
-        const usdValue = Number(h.usdValue).toLocaleString(undefined, { 
-            minimumFractionDigits: 2, 
-            maximumFractionDigits: 2 
-        });
-        const imageUrl = h.image || `https://placehold.co/24x24/1f2937/ffffff?text=${symbol.substring(0,2)}`;
-
-        return `
-            <div class="flex items-center justify-between border-b border-gray-800 py-2 last:border-b-0">
-                <div class="flex items-center gap-3">
-                    <img 
-                        src="${imageUrl}" 
-                        alt="${symbol} Logo" 
-                        class="w-6 h-6 rounded-full"
-                        onerror="this.onerror=null;this.src='https://placehold.co/24x24/1f2937/ffffff?text=${symbol.substring(0,2)}'"
-                    />
-                    <div>
-                        <p class="font-semibold text-white">${symbol}</p>
-                        <p class="text-xs text-gray-400">${amount}</p>
-                    </div>
-                </div>
-                <p class="font-semibold text-right text-green-400">$${usdValue}</p>
-            </div>
-        `;
-    }).join('');
-
-    holdingsList.innerHTML = holdingsHTML;
-}
+            const holdingsList = document.getElementById('tokenHoldingsList');
+            const holdingsData = appState.balances.holdings.filter(h => h.usdValue > 0.01);
             
+            document.getElementById('holdingsEmpty').classList.toggle('hidden', holdingsData.length > 0);
+            
+            holdingsList.innerHTML = holdingsData.map(h => `
+                <div class="flex items-center justify-between border-b border-gray-800 pb-2 last:border-b-0">
+                    <div class="flex items-center gap-3">
+                        <img src="${h.image}" class="w-6 h-6 rounded-full" onerror="this.onerror=null;this.src='https://placehold.co/24x24/1f2937/ffffff?text=${h.symbol.substring(0,2)}'" />
+                        <div>
+                            <p class="font-semibold">${h.symbol.toUpperCase()}</p>
+                            <p class="text-xs text-binance-text-muted">${h.amount.toFixed(4)}</p>
+                        </div>
+                    </div>
+                    <p class="font-semibold">$${h.usdValue.toFixed(2).toLocaleString()}</p>
+                </div>
+            `).join('');
+
             // Activities Summary
             const latestActivity = appState.activities[0];
             const activitiesSummary = document.getElementById('activitiesHomeSummary');
